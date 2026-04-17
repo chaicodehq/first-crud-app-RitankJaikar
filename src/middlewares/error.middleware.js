@@ -10,4 +10,21 @@
  */
 export function errorHandler(err, req, res, next) {
   // Your code here
+  let statusCode = err.status || 500;
+  let message = err.message || "Internal Server Error";
+
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(err.errors)
+      .map((item) => item.message)
+      .join(", ");
+  }
+
+  // 2. Handle Mongoose CastError (Invalid ID)
+  if (err.name === "CastError") {
+    statusCode = 400;
+    message = "Invalid id format";
+  }
+
+  res.status(statusCode).json({ error: { message: message } });
 }
